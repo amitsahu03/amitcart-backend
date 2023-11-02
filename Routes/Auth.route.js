@@ -1,14 +1,14 @@
 import express from "express";
 import createError from "http-errors";
 import User from "../Models/User.model.js";
-import { authSchema } from "../Helpers/validation_schema.js";
-import { signAccessToken, signRefreshToken,verifyRefreshToken } from "../Helpers/jwt_helper.js";
+import { authSchema,registerSchema } from "../Helpers/validation_schema.js";
+import { signAccessToken, signRefreshToken,verifyRefreshToken,verifyAccessToken, isTokenValid } from "../Helpers/jwt_helper.js";
 const router = express.Router();
 
 
 router.post('/register',async(req,res,next)=>{
     try {
-        const result = await authSchema.validateAsync(req.body);
+        const result = await registerSchema.validateAsync(req.body);
 
         const doesExist = await User.findOne({email:result.email});
         if(doesExist) throw createError.Conflict(`${result.email} is already been registered`);
@@ -18,7 +18,7 @@ router.post('/register',async(req,res,next)=>{
         const accessToken = await signAccessToken(savedUser.id);
         const refreshToken = await signRefreshToken(savedUser.id);
 
-        res.send({accessToken,refreshToken});
+        res.send({status:true,accessToken,refreshToken});
 
     } catch (error) {
         if(error.isJoi){
@@ -41,12 +41,24 @@ router.post('/login',async(req,res,next)=>{
         const accessToken = await signAccessToken(user.id);
         const refreshToken = await signRefreshToken(user.id);
 
-        res.send({accessToken,refreshToken});
+        res.send({status:true,accessToken,refreshToken});
         
     } catch (error) { 
         if(error.isJoi){
             return next(createError.BadRequest("Invalid email or password"));
         }
+        next(error);
+    }
+});
+
+
+router.post('/verifytoken',async(req,res,next)=>{
+    try {
+        const {accessToken} = req.body;
+        if(!accessToken) throw createError.BadRequest();
+        await isTokenValid(accessToken);
+        res.send({status:true,message:'Token is valid'});
+    } catch (error) {
         next(error);
     }
 });

@@ -3,6 +3,7 @@ import morgan from "morgan";
 import cors from "cors";
 import createError from "http-errors";
 import AuthRoute from './Routes/Auth.route.js';
+import ContactRoute from './Routes/Contact.route.js';
 import './Helpers/init_mongodb.js';
 import { verifyAccessToken } from "./Helpers/jwt_helper.js";
 
@@ -19,6 +20,7 @@ app.get('/', async(req, res, next) => {
 });
 
 app.use('/api/auth', AuthRoute);
+app.use('/api/contact', ContactRoute);
 
 app.use(async (req,res,next)=>{
     next(createError.NotFound());

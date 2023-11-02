@@ -5,4 +5,16 @@ const authSchema = Joi.object({
     password: Joi.string().min(6).required()
 })
 
-export {authSchema};
+const registerSchema = Joi.object({
+    name: Joi.string().min(1).required(),
+    email: Joi.string().email().lowercase().required(),
+    password: Joi.string().min(6).required()
+})
+
+const contactSchema = Joi.object({
+    name: Joi.string().min(1).required(),
+    email: Joi.string().email().lowercase().required(),
+    message: Joi.string().min(1).required()
+})
+
+export {authSchema,contactSchema,registerSchema};

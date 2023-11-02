@@ -1,40 +1,23 @@
-import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const ContactSchema = new Schema({
-    name:{},
+    name:{
+        type: String,
+        required: true,
+    },
     email:{
         type: String,
         required: true,
         lowercase: true,
         unique: true
     },
-    password:{
+    message:{
         type: String,
         required: true
     }
 });
 
-ContactSchema.pre('save', async function(next){
-    try {
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(this.password, salt);
-        this.password = hashedPassword;
-        next();
-    } catch (error) {
-        next(error);
-    }
-})
 
-ContactSchema.methods.isPasswordValid = async function(password){
-    try {
-        return await bcrypt.compare(password, this.password);
-    } catch (error) {
-        throw error;
-    }
-}
-
-
-const User = mongoose.model('user', ContactSchema);
-export default User;
+const Contact = mongoose.model('contact', ContactSchema);
+export default Contact;
